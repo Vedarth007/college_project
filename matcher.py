@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import mediapipe as mp
 from streamlit_webrtc import VideoTransformerBase
-from utils.pose_utils import calculate_angle
+from pose_utils import calculate_angle
 
 mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
