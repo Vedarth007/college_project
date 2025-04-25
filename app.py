@@ -9,7 +9,7 @@ st.set_page_config(layout="wide")
 st.title("🧘 Pose Matcher")
 
 # Load and process reference image
-ref_path = "assets/ref_pose.jpg"
+ref_path = "ref_pose.jpg"
 ref_img = cv2.imread(ref_path)
 if ref_img is None:
     st.error("Reference image not found.")
