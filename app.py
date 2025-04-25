@@ -6,7 +6,6 @@ import av
 import numpy as np
 from pose_utils import calculate_angle
 
-
 st.set_page_config(layout="wide")
 st.title("🧘 Pose Matcher")
 
@@ -36,13 +35,17 @@ with mp_pose.Pose(static_image_mode=True) as pose:
 
     reference_angle = calculate_angle(shoulder, elbow, wrist)
 
-
-# VideoTransformer Class using MediaPipe Pose
+# PoseMatcher with freeze-on-match logic
 class PoseMatcher(VideoTransformerBase):
     def __init__(self):
         self.pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        self.freeze = False
+        self.frozen_frame = None
 
     def transform(self, frame: av.VideoFrame) -> np.ndarray:
+        if self.freeze and self.frozen_frame is not None:
+            return self.frozen_frame
+
         img = frame.to_ndarray(format="bgr24")
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = self.pose.process(img_rgb)
@@ -64,14 +67,19 @@ class PoseMatcher(VideoTransformerBase):
             cv2.putText(img, f'Angle: {int(current_angle)} deg',
                         (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-            # Compare with reference
-            diff = abs(current_angle - reference_angle)
-            match_status = "✅ Match!" if diff < 15 else "❌ Not Matching"
-            color = (0, 255, 0) if diff < 15 else (0, 0, 255)
+            # Check angle match
+            if abs(current_angle - reference_angle) < 15:
+                match_status = "✅ Match!"
+                color = (0, 255, 0)
+                self.freeze = True
+                self.frozen_frame = img.copy()
+            else:
+                match_status = "❌ Not Matching"
+                color = (0, 0, 255)
+
             cv2.putText(img, match_status, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
         return img
-
 
 # UI layout
 col1, col2 = st.columns(2)
