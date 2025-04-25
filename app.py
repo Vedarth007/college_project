@@ -2,8 +2,8 @@ import cv2
 import mediapipe as mp
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer
-from utils.pose_utils import calculate_angle
-from transformer.matcher import PoseMatcher
+from pose_utils import calculate_angle
+from matcher import PoseMatcher
 
 st.set_page_config(layout="wide")
 st.title("🧘 Pose Matcher")
